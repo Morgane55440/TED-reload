@@ -7,6 +7,93 @@ import socket
 import threading
 import json
 
+tile_y_size = 32
+tile_x_size = 32
+outside_tile = tile(tile_type(False, None, None, None), None, None, self.canvas, 0)
+
+class game:
+      def __init__(self, world_map):
+            self.world_map = world_map
+            
+            
+ class game_map:
+      def __init__(self, map_file, canvas):
+            self.canvas = canvas
+            with open("map.json",mode='r')as map_list:
+                  self.t_types = [tile_type(t[0], t[1], t[2], t[3]) fo t in map_list[0]]
+                  self.world_map = [[tile(self.t_types[tile[0]], x * tile_x_size + 1, y * tile_y_size + 1, self.canvas, tile[1]) for x, tile in enumerate(col)] for y, col in enumerate(map_list[1])]
+            self.x_size = len(self.world_map[0])
+            self.y_size = len(self.world_map)
+      def tile_get(self, x, y):
+            if x < 0 || x >= self.x_size || y < 0 || y >= self.y_size:
+                  return outside_tile
+            return self.world_map[x][y]
+            
+            
+class tile_type:
+      def __init__(self, filename, iswalkable, health_var, mana_var):
+            self.iswalkable = iswalkable
+            self.health_var = health_var
+            self.mana_var = mana_var
+            self.texture= PhotoImage(file=filename)
+            
+class renderable:
+      def __init__(self, xpos, ypos, sprite, canvas, shown = False):
+            self.sprite = sprite
+            self.xpos = xpos
+            self.ypos = ypos
+            self.canvas = canvas
+            self.render = None
+            if shown:
+                  self.show()
+      def show(self):
+            if !self.is_rendered():
+                  self.render = self.canvas.create_image(self.xpos, self.ypos, image=self.sprite, anchor = "nw")
+      def hide(self):
+            if self.is_rendered():
+                  self.canvas.delete(self.render)
+      def is_rendered(self):
+            return self.render != None
+      def move(self, **pos):
+            self.xpos, self.ypos = pos.get("x", self.xpos), pos.get("y", self.ypos)
+            if self.is_rendered():
+                  self.canvas.coord(self.render, self.xpos, self.ypos)
+            
+class tile(renderable):
+      def __init__(self, t_type, xcoord, ycoord, canvas, availability):
+            self.t_type = t_type
+            renderable.__init__(xpos, ypos, self.t_type.texture, canvas, True)
+            self.availability = availability
+            
+            
+class player(renderable):
+      def __init__(self, world_map, class_file):
+            with open(class_file,mode='r')as class:
+                  gvalue[4][0]=json.load(server_class)
+                  
+                  
+class stat:
+      def __init__(self, init_value, **kwargs):
+            self.max = kwargs.get("max", None)
+            self.change_rate = kwargs.get("change_rate", 0)
+            self.can_go_negative = kwargs.get("negative", False)
+            self.value = init_value if self.negative else max(init_value, 0)
+      def add(self, change):
+            self.value += change
+            if self.value < 0 and !self.can_go_negative:
+                  self.value = 0
+            else if self.value > self.max:
+                  self.value = self.max
+      def sub(self, change):
+            self.add(-change)
+      def update(self):
+            self.add(self.change_rate)
+      def is_zero(self):
+            return self.value == 0
+      def is_max(self):
+            return self.max != None and self.value == self.max
+       
+
 def deplacement(target,x,y):
     #print(type(gvalue[4][target][7]),gvalue[4][target][7])
     gvalue[2].coords(gvalue[4][target][7],x*32,y*32)

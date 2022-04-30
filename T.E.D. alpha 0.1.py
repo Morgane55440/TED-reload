@@ -19,7 +19,8 @@ class game:
  class game_map:
       def __init__(self, map_file, canvas):
             self.canvas = canvas
-            with open("map.json",mode='r')as map_list:
+            with open("map.json",mode='r')as map_json:
+                  map_list = json.load(map_json)
                   self.t_types = [tile_type(t[0], t[1], t[2], t[3]) fo t in map_list[0]]
                   self.world_map = [[tile(self.t_types[tile[0]], x * tile_x_size + 1, y * tile_y_size + 1, self.canvas, tile[1]) for x, tile in enumerate(col)] for y, col in enumerate(map_list[1])]
             self.x_size = len(self.world_map[0])
@@ -38,61 +39,165 @@ class tile_type:
             self.texture= PhotoImage(file=filename)
             
 class renderable:
-      def __init__(self, xpos, ypos, sprite, canvas, shown = False):
+      def __init__(self, x, y, sprite, canvas, shown = False):
             self.sprite = sprite
-            self.xpos = xpos
-            self.ypos = ypos
+            self.x = x
+            self.y = y
             self.canvas = canvas
             self.render = None
             if shown:
                   self.show()
       def show(self):
             if !self.is_rendered():
-                  self.render = self.canvas.create_image(self.xpos, self.ypos, image=self.sprite, anchor = "nw")
+                  self.render = self.canvas.create_image(self.x, self.y, image=self.sprite, anchor = "nw")
       def hide(self):
             if self.is_rendered():
                   self.canvas.delete(self.render)
       def is_rendered(self):
             return self.render != None
       def move(self, **pos):
-            self.xpos, self.ypos = pos.get("x", self.xpos), pos.get("y", self.ypos)
+            self.x, self.y = pos.get("x", self.xpos), pos.get("y", self.ypos)
             if self.is_rendered():
-                  self.canvas.coord(self.render, self.xpos, self.ypos)
+                  self.canvas.coord(self.render, self.x, self.y)
             
 class tile(renderable):
-      def __init__(self, t_type, xcoord, ycoord, canvas, availability):
+      def __init__(self, t_type, x, y, canvas, availability):
             self.t_type = t_type
-            renderable.__init__(xpos, ypos, self.t_type.texture, canvas, True)
+            renderable.__init__(x, y, self.t_type.texture, canvas, True)
             self.availability = availability
             
             
-class player(renderable):
-      def __init__(self, world_map, class_file):
-            with open(class_file,mode='r')as class:
-                  gvalue[4][0]=json.load(server_class)
+class player:
+      def __init__(self, world_map, class_file, x = 0, y = 0):
+            with open(class_file,mode='r')as class_json:
+                  class_list = json.load(class_json)
+            self.x, self.y = x, y
+            slf.render = renderable(x *, 0, PhotoImage(file=class_list[0]), world_map.canvas)
+            self.hp = basic_stat(*(class_list[1][0:3]))
+            self.energy = basic_stat(*(class_list[2][0:3]))
+            self.movement = basic_stat("movement", class_list[3][1], class_list[3][1])
+            self.defence, self.initiative = class_list[3][0], class_list[3][2]
+            self.attack_list = [attack(None, *attack_list) for attack_list in class_list[4]]
+      def 
+            
                   
                   
+      
+class attack:
+      def __init__(self, name, damage, cost, hit_range):
+            self.name = name
+            self.cost = cost
+            self.damage = damage
+            self.hit_range = hit_range
+      def in_range(self, p1, p2):
+            return ((p1.xpos - p2.xpos) ** 2) + ((p1.yxpos - p2.ypos) ** 2) <= self.hit_range
+      def hit(self, p1, p2):
+            if self.in_range(p1, p2) and p1.energy.spend(self.cost):
+                  p2.hp -= self.damage
+                  return True
+            return False
+      
+             
 class stat:
       def __init__(self, init_value, **kwargs):
+            self.value = init_value
+            self.name = kwargs.get("name", None)
+            self.min = kwargs.get("min", None)
             self.max = kwargs.get("max", None)
             self.change_rate = kwargs.get("change_rate", 0)
-            self.can_go_negative = kwargs.get("negative", False)
-            self.value = init_value if self.negative else max(init_value, 0)
+            self.add(0)
       def add(self, change):
             self.value += change
-            if self.value < 0 and !self.can_go_negative:
-                  self.value = 0
-            else if self.value > self.max:
+            if self.min != None and self.value < self.min:
+                  self.value = self.min
+            else if self.max != None and self.value > self.max:
                   self.value = self.max
+      def __iadd__(self, change):
+            self.add(change)
+            return self
+      def __isub__(self, change):
+            self.sub(change)
+            return self
       def sub(self, change):
             self.add(-change)
       def update(self):
             self.add(self.change_rate)
-      def is_zero(self):
+      def spend(self, change):
+            if (self.min == None or self + change >= self.min) and (self.max == None or self + change<= self.max):
+                  self += change
+                  return True
+            return False
+      def is_min(self):
             return self.value == 0
       def is_max(self):
             return self.max != None and self.value == self.max
-       
+       def __eq__(self, other):
+                  return (isinstance(other, stat) and self.value == other.value) or self.value == other
+                                     
+def basic_stat(stat_name, init, change):
+      return stat(init, min = 0, name = stat_name, min = 0, max = init, change_rate = change)
+            
+def vector:
+      def __init__(self, *values):
+            self.finite = list(values)
+      def dim(self):
+            while len(self.finite) > 0 and self.finite[-1] == 0:
+                  self.finite.pop(-1)
+            return len(self.arr)
+      def __getitem__(self, key):
+            if key < 0:
+                  raise IndexError("not valid key '{}'".format(key))
+            return self.finite[key] if key < self.dim() else 0
+      def __setitem__(self, key, value):
+            if key < 0:
+                  raise IndexError("not valid key '{}'".format(key))
+            if key < self.dim():
+                  self.finite[key] = value
+            else:
+                  self.finite += [0] * (key - self.dim()) + [value]
+      def __add__(self, other):
+            return vector(self[i] + other[i] for i in range(max(self.dim(), other.dim())))
+      def __sub__(self, other):
+            return vector(self[i] - other[i] for i in range(max(self.dim(), other.dim())))
+      def __and__(self, other):
+            return vector(self[i] & other[i] for i in range(max(self.dim(), other.dim())))
+      def __or__(self, other):
+            return vector(self[i] | other[i] for i in range(max(self.dim(), other.dim())))
+      def __xor__(self, other):
+            return vector(self[i] ^ other[i] for i in range(max(self.dim(), other.dim())))
+      def __truediv__(self, scalar):
+            return vector(self[i] / scalar for i in range(self.dim()))
+      def __floordiv__(self, scalar):
+            return vector(self[i] // scalar for i in range(self.dim()))
+      def __mul__(self, scalar):
+            return vector(self[i] * scalar for i in range(self.dim()))
+      def __mod__(self, scalar):
+            return vector(self[i] % scalar for i in range(self.dim()))
+      def __lshift__(self, scalar):
+            return vector(self[i] << scalar for i in range(self.dim()))
+      def __rshift__(self, scalar):
+            return vector(self[i] >> scalar for i in range(self.dim()))
+      def __pos__(self):
+            return self
+      def __neg__(self):
+            return self * (-1)
+      def __absneg__(self):
+            return vector(abs(self[i]) for i in range(self.dim()))
+      def __eq__(self, other):
+            if (self.dim() == 1 and self[0] == other) or (self.dim() == 0 and other == 0):
+                  return True
+            if !isinstance(other, vector):
+                  return False
+            for i in range(max(self.dim(), other.dim())):
+                  if self[i] != other[i]:
+                        return False
+            return True
+      def __ne__(self, other):
+            return !(self == other)
+      
+                  
+   
+                          
 
 def deplacement(target,x,y):
     #print(type(gvalue[4][target][7]),gvalue[4][target][7])

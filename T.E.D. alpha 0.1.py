@@ -6,6 +6,7 @@ from tkinter.messagebox import *
 import socket
 import threading
 import json
+from vector import Vector
 
 tile_y_size = 32
 tile_x_size = 32
@@ -122,6 +123,8 @@ class stat:
             self.add(-change)
       def update(self):
             self.add(self.change_rate)
+      def __pos__(self):
+            self.upate()
       def spend(self, change):
             if (self.min == None or self + change >= self.min) and (self.max == None or self + change<= self.max):
                   self += change
@@ -136,66 +139,7 @@ class stat:
                                      
 def basic_stat(stat_name, init, change):
       return stat(init, min = 0, name = stat_name, min = 0, max = init, change_rate = change)
-            
-def vector:
-      def __init__(self, *values):
-            self.finite = list(values)
-      def dim(self):
-            while len(self.finite) > 0 and self.finite[-1] == 0:
-                  self.finite.pop(-1)
-            return len(self.arr)
-      def __getitem__(self, key):
-            if key < 0:
-                  raise IndexError("not valid key '{}'".format(key))
-            return self.finite[key] if key < self.dim() else 0
-      def __setitem__(self, key, value):
-            if key < 0:
-                  raise IndexError("not valid key '{}'".format(key))
-            if key < self.dim():
-                  self.finite[key] = value
-            else:
-                  self.finite += [0] * (key - self.dim()) + [value]
-      def __add__(self, other):
-            return vector(self[i] + other[i] for i in range(max(self.dim(), other.dim())))
-      def __sub__(self, other):
-            return vector(self[i] - other[i] for i in range(max(self.dim(), other.dim())))
-      def __and__(self, other):
-            return vector(self[i] & other[i] for i in range(max(self.dim(), other.dim())))
-      def __or__(self, other):
-            return vector(self[i] | other[i] for i in range(max(self.dim(), other.dim())))
-      def __xor__(self, other):
-            return vector(self[i] ^ other[i] for i in range(max(self.dim(), other.dim())))
-      def __truediv__(self, scalar):
-            return vector(self[i] / scalar for i in range(self.dim()))
-      def __floordiv__(self, scalar):
-            return vector(self[i] // scalar for i in range(self.dim()))
-      def __mul__(self, scalar):
-            return vector(self[i] * scalar for i in range(self.dim()))
-      def __mod__(self, scalar):
-            return vector(self[i] % scalar for i in range(self.dim()))
-      def __lshift__(self, scalar):
-            return vector(self[i] << scalar for i in range(self.dim()))
-      def __rshift__(self, scalar):
-            return vector(self[i] >> scalar for i in range(self.dim()))
-      def __pos__(self):
-            return self
-      def __neg__(self):
-            return self * (-1)
-      def __absneg__(self):
-            return vector(abs(self[i]) for i in range(self.dim()))
-      def __eq__(self, other):
-            if (self.dim() == 1 and self[0] == other) or (self.dim() == 0 and other == 0):
-                  return True
-            if !isinstance(other, vector):
-                  return False
-            for i in range(max(self.dim(), other.dim())):
-                  if self[i] != other[i]:
-                        return False
-            return True
-      def __ne__(self, other):
-            return !(self == other)
       
-                  
    
                           
 

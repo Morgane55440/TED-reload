@@ -23,37 +23,47 @@ class Vector:
       def __str__(self):
             return "<" + ",".join(str(e) for e in self) + ">"
       def __add__(self, other):
-            return vector(*(self[i] + other[i] for i in range(max(len(self), len(other)))))
+            return Vector(*(self[i] + other[i] for i in range(max(len(self), len(other)))))
       def __sub__(self, other):
-            return vector(*(self[i] - other[i] for i in range(max(len(self), len(other)))))
+            return Vector(*(self[i] - other[i] for i in range(max(len(self), len(other)))))
       def __and__(self, other):
-            return vector(*(self[i] & other[i] for i in range(max(len(self), len(other)))))
+            return Vector(*(self[i] & other[i] for i in range(max(len(self), len(other)))))
       def __or__(self, other):
-            return vector(*(self[i] | other[i] for i in range(max(len(self), len(other)))))
+            return Vector(*(self[i] | other[i] for i in range(max(len(self), len(other)))))
       def __xor__(self, other):
-            return vector(*(self[i] ^ other[i] for i in range(max(len(self), len(other)))))
+            return Vector(*(self[i] ^ other[i] for i in range(max(len(self), len(other)))))
       def __truediv__(self, scalar):
-            return vector(*(self[i] / scalar for i in range(len(self))))
+            return Vector(*(self[i] / scalar for i in range(len(self))))
       def __floordiv__(self, scalar):
-            return vector(*(self[i] // scalar for i in range(len(self))))
+            return Vector(*(self[i] // scalar for i in range(len(self))))
       def __mul__(self, scalar):
-            return vector(*(self[i] * scalar for i in range(len(self))))
+            return Vector(*(self[i] * scalar for i in range(len(self))))
+      def __rmul__(self, scalar):
+            return self * scalar
       def __mod__(self, scalar):
-            return vector(*(self[i] % scalar for i in range(len(self))))
+            return Vector(*(self[i] % scalar for i in range(len(self))))
       def __lshift__(self, scalar):
-            return vector(*(self[i] << scalar for i in range(len(self))))
+            return Vector(*(self[i] << scalar for i in range(len(self))))
       def __rshift__(self, scalar):
-            return vector(*(self[i] >> scalar for i in range(len(self))))
+            return Vector(*(self[i] >> scalar for i in range(len(self))))
       def __pos__(self):
             return self
       def __neg__(self):
             return self * (-1)
       def __abs__(self):
-            return vector(*(abs(self[i]) for i in range(len(self))))
+            return Vector(*(abs(e) for e in self))
+      def __round__(self, ndigits = None):
+            return Vector(*(round(e, ndigits)  for e in self))
+      def __trunc__(self, ndigits = None):
+            return Vector(*(e.__trunc__()  for e in self))
+      def __floor__(self, ndigits = None):
+            return Vector(*(e.__floor__()  for e in self))
+      def __ceil__(self, ndigits = None):
+            return Vector(*(e.__ceil__()  for e in self))
       def __eq__(self, other):
             if (len(self) == 1 and self[0] == other) or (len(self) == 0 and other == 0):
                   return True
-            if not isinstance(other, vector):
+            if not isinstance(other, Vector):
                   return False
             for i in range(max(len(self), len(other))):
                   if self[i] != other[i]:

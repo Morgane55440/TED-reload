@@ -2,8 +2,6 @@ class Vector:
       def __init__(self, *values):
             self.finite = list(values)
       def __len__(self):
-            while len(self.finite) > 0 and self.finite[-1] == 0:
-                  self.finite.pop(-1)
             return len(self.finite)
       def __getitem__(self, key):
             if key < 0:
@@ -47,6 +45,8 @@ class Vector:
       def __rshift__(self, scalar):
             return Vector(*(self[i] >> scalar for i in range(len(self))))
       def __pos__(self):
+            while len(self.finite) > 0 and self.finite[-1] == 0:
+                  self.finite.pop(-1)
             return self
       def __neg__(self):
             return self * (-1)
